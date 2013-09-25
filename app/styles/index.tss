@@ -1,8 +1,82 @@
-".container": {
-	backgroundColor:"white"
-},
-"Label": {
-	width: Ti.UI.SIZE,
-	height: Ti.UI.SIZE,
-	color: "#000"
-} 
+"#tag_list": {
+	backgroundColor:"white",
+	backgroundImage:"/image1.jpg",
+	visible:"true",
+	bottom:"60",
+}
+
+"#album": {
+	backgroundColor:"white",
+	backgroundImage:"/image2.jpg",
+	visible:"false",
+	bottom:"60",
+}
+
+"#image_list": {
+	backgroundColor:"white",
+	backgroundImage:"/image3.jpg",
+	visible:"false",
+	bottom:"60",
+}
+
+"#camera": {
+	backgroundColor:"white",
+	backgroundImage:"/image4.jpg",
+	visible:"false",
+	bottom:"60",
+}
+
+"#photo": {
+	backgroundColor:"white",
+	backgroundImage:"/image5.jpg",
+	visible:"false",
+	bottom:"60",
+}
+
+"#tag_table": {
+	height:"100",
+	bottom:"0",
+	backgroundImage:"/tag_table_back.png"
+}
+
+"#tag1": {
+	left:"10",
+}
+
+"#tag2": {
+	left:"90",
+}
+
+"#tag3": {
+	left:"170",
+}
+
+"#close_tag": {
+	left:"240",
+}
+
+"#button_view": {
+	 backgroundColor:"white",
+	 height:"60",
+	 bottom:"0",
+}
+
+"#button1": {
+	backgroundImage:"/icon1.png"
+}
+
+"#button2": {
+	backgroundImage:"/icon2.png"
+}
+
+"#button3": {
+	backgroundImage:"/icon3.png"
+}
+
+"#button4": {
+	backgroundImage:"/icon3.png"
+}
+
+"#button5": {
+	backgroundImage:"/icon3.png"
+}

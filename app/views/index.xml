@@ -1,5 +1,31 @@
 <Alloy>
-	<Window class="container">
-		<Label id="label" onClick="doClick">Hello, World</Label>
+	<Window class=".content">
+		<View id="tag_list">
+			<View id="tag_table">
+				<Button id="tag1">TAB1</Button>
+				<Button id="tag2">TAB2</Button>
+				<Button id="tag3">TAB3</Button>
+				<Button id="close_tag">CLOSE</Button>
+			</View>
+		</View>
+		<View id="album">
+			<Label id="label" onClick="doClick3">access photo album</Label>
+		</View>
+		<View id="image_list">
+			
+		</View>
+		<View id="camera">
+			<Label id="label" onClick="doClick2">Cool Motoi!</Label>
+		</View>
+		<View id="photo">
+			<Label id="label" onClick="doClick4">show photo</Label>
+		</View>
+		<View id="button_view">
+			<Button id="button1" onClick="changeView1"></Button>			
+			<Button id="button2" onClick="changeView2"></Button>
+			<Button id="button3" onClick="changeView3"></Button>
+			<Button id="button4" onClick="changeView4"></Button>
+			<Button id="button5" onClick="changeView5"></Button>
+		</View>
 	</Window>
 </Alloy>

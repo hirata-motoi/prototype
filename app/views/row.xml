@@ -1,0 +1,11 @@
+<Alloy>
+
+    <TableViewRow id="row">
+
+        <Label id="title">Menu</Label>
+
+        <ImageView id="image" image="/image1.jpg" />
+
+    </TableViewRow>
+
+</Alloy>
