@@ -12,7 +12,6 @@
 			<Label id="label" onClick="doClick3">access photo album</Label>
 		</View>
 		<View id="image_list">
-			
 		</View>
 		<View id="camera">
 			<Label id="label" onClick="doClick2">Cool Motoi!</Label>

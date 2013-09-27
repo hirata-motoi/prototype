@@ -5,12 +5,14 @@ var animation = require('alloy/animation');
 
 function changeView1() {
 	changeView(1);
+	open_tag_list();
 }
 function changeView2() {
 	changeView(2);
 }
 function changeView3() {
 	changeView(3);
+	open_image_list();
 }
 function changeView4() {
 	changeView(4);
@@ -616,7 +618,7 @@ function create_tag_list(tag) {
     tag_win.add(scrollView);
 }
 
-$.tag_list.addEventListener('focus', function() {
+function open_tag_list() {
     var children = $.tag_list.children.slice(0);
     if (children) {
         for (var i = 0; i < children.length; i++) {
@@ -624,8 +626,9 @@ $.tag_list.addEventListener('focus', function() {
         }
     }
     create_tag_list();
-});
-$.image_list.addEventListener('focus', function() {
+};
+
+function open_image_list() {
     var children = $.image_list.children.slice(0);
     if (children) {
         for (var i = 0; i < children.length; i++) {
@@ -633,7 +636,7 @@ $.image_list.addEventListener('focus', function() {
         }
     }
     create_image_list();
-});
+}
 
 
 $.index.open();
