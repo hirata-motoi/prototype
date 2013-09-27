@@ -619,13 +619,85 @@ function create_tag_list(tag) {
 }
 
 function open_tag_list() {
-    var children = $.tag_list.children.slice(0);
-    if (children) {
-        for (var i = 0; i < children.length; i++) {
-            $.tag_list.remove(children[i]);
-        }
-    }
-    create_tag_list();
+//    var children = $.tag_list.children.slice(0);
+//    if (children) {
+//        for (var i = 0; i < children.length; i++) {
+//            $.tag_list.remove(children[i]);
+//        }
+//    }
+//    create_tag_list();
+	var tag_num = 3;
+	var arrayWord = new Array(6);
+	
+	var hostScrollView = Titanium.UI.createScrollView({
+		top : "0dp",
+		left : "0dp",
+		contentWidth : "100dp",
+		height : "100%",
+		width : "100%",
+		contentHeight : (150 * tag_num) + "dp",
+		scrollType : "vertical",
+		backgroundColor : "red",
+	});
+	
+	var guestScrollView = new Array(tag_num);
+	var guestTagView = new Array(tag_num);
+	var guestTagLabel = new Array(tag_num);
+	var imageListView = new Array(tag_num * 6);
+	for (var i = 0; i < tag_num; i++) {
+		// Tag View
+		guestTagView[i] = Ti.UI.createView({
+			backgroundColor : "#ffffff",
+			borderWidth : 1,
+			top : (150 * i) + "dp",
+			height : "50dp",
+			width: "100%",
+		});
+		guestTagLabel[i] = Ti.UI.createLabel({
+			color : "#000",
+			font : {
+				fontSize : "14dp"
+			},
+			text: "tag" + i,
+			width : "100%",
+			textAlign : "center",
+			height : "50dp",
+			backgroundColor : "#ddd"
+		});
+		guestTagView[i].add(guestTagLabel[i]);
+		// Images View
+		guestScrollView[i] = Titanium.UI.createScrollView({
+			top : (150 * i + 50) + "dp",
+			left : "0dp",
+			contentHeight : "100dp",
+			height : "100dp",
+			width : "100%",
+			contentWidth : (100 * arrayWord.length) + "dp",
+			scrollType : "horizontal",
+			backgroundColor : "blue",
+		});
+		var viewLayout = {
+			backgroundColor : "#ffffff",
+			backgroundImage : "/icon1.png",
+			borderWidth : 10,
+			top : "0dp",
+			height : "100dp"
+		};
+	
+		for(var j = 0; j < arrayWord.length; j++) {
+			console.log(i*(arrayWord.length) + j);
+			imageListView[i*(arrayWord.length) + j] = Ti.UI.createView(viewLayout);
+			imageListView[i*(arrayWord.length) + j].left = j * 100 + "dp";
+			imageListView[i*(arrayWord.length) + j].width = 100 + "dp";
+			guestScrollView[i].add(imageListView[i*(arrayWord.length) + j]);
+			imageListView[i*(arrayWord.length) + j].addEventListener('click', function(){
+				alert(i*(arrayWord.length) + j);
+			});
+		}
+		hostScrollView.add(guestTagView[i]);
+		hostScrollView.add(guestScrollView[i]);
+	}
+	$.tag_list.add(hostScrollView);
 };
 
 function open_image_list() {
