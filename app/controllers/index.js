@@ -692,15 +692,31 @@ function open_tag_list() {
 			});
 			imageListView.add(imageListImageView[image_num]);
 			imageListImageView[image_num].addEventListener('click', function(){
+				var imageListBigImageBackView = Ti.UI.createView({
+					backgroundImage: "/tag_table_back.png",
+					width:"100%",
+					height:"100%",
+				});
 				var imageListBigImageView = Ti.UI.createImageView({
 					image: this.image,
-					width: "95%",
-					height: "95%",
+					width: "90%",
+					height: "90%",
 				});
-				imageListBigImageView.addEventListener('click', function(){
-					$.tag_list.remove(this);
+				imageListBigImageBackView.add(imageListBigImageView);
+				imageListBigImageBackView.addEventListener('click', function(){
+					animation.fadeOut(this, 500);
+//					$.tag_list.remove(this);
 				});
-				$.tag_list.add(imageListBigImageView);
+//				imageListBigImageBackView.visible = "false";
+//				animation.fadeOut(imageListBigImageBackView, 0);
+//				imageListBigImageBackView.visible = "true";
+				$.tag_list.add(imageListBigImageBackView);
+//				animation.fadeIn(imageListBigImageBackView, 500);
+//				$.tag_list.add(imageListBigImageBackView);
+//				animation.fadeOut(imageListBigImageBackView, 0);
+//				imageListBigImageBackView.visible = "true";
+
+//				imageListBigImageBackView.visible = "true";
 			});
 			guestScrollView[i].add(imageListView);
 		}
