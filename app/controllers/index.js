@@ -643,7 +643,7 @@ function open_tag_list() {
 	var guestScrollView = new Array(tag_num);
 	var guestTagView = new Array(tag_num);
 	var guestTagLabel = new Array(tag_num);
-	var imageListView = new Array(tag_num * 6);
+	var imageListImageView = new Array(tag_num * 6);
 	for (var i = 0; i < tag_num; i++) {
 		// Tag View
 		guestTagView[i] = Ti.UI.createView({
@@ -676,23 +676,33 @@ function open_tag_list() {
 			scrollType : "horizontal",
 			backgroundColor : "blue",
 		});
-		var viewLayout = {
-			backgroundColor : "#ffffff",
-			backgroundImage : "/icon1.png",
-			borderWidth : 10,
-			top : "0dp",
-			height : "100dp"
-		};
-	
+
 		for(var j = 0; j < arrayWord.length; j++) {
-			console.log(i*(arrayWord.length) + j);
-			imageListView[i*(arrayWord.length) + j] = Ti.UI.createView(viewLayout);
-			imageListView[i*(arrayWord.length) + j].left = j * 100 + "dp";
-			imageListView[i*(arrayWord.length) + j].width = 100 + "dp";
-			guestScrollView[i].add(imageListView[i*(arrayWord.length) + j]);
-			imageListView[i*(arrayWord.length) + j].addEventListener('click', function(){
-				alert(i*(arrayWord.length) + j);
+			var image_num = i*(arrayWord.length) + j;
+			var imageListView = Ti.UI.createView({
+				backgroundColor : "#ffffff",
+				borderWidth : 10,
+				top : "0dp",
+				height : "100dp"
 			});
+			imageListView.left = j * 100 + "dp";
+			imageListView.width = 100 + "dp";
+			imageListImageView[image_num] = Ti.UI.createImageView({
+				image: "/icon" + (i+1) + ".png",
+			});
+			imageListView.add(imageListImageView[image_num]);
+			imageListImageView[image_num].addEventListener('click', function(){
+				var imageListBigImageView = Ti.UI.createImageView({
+					image: this.image,
+					width: "95%",
+					height: "95%",
+				});
+				imageListBigImageView.addEventListener('click', function(){
+					$.tag_list.remove(this);
+				});
+				$.tag_list.add(imageListBigImageView);
+			});
+			guestScrollView[i].add(imageListView);
 		}
 		hostScrollView.add(guestTagView[i]);
 		hostScrollView.add(guestScrollView[i]);
