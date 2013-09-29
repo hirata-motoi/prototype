@@ -202,7 +202,7 @@ function get_image_path_list(tags) {
 
     if (tags) {
         tags_str = tags.join(',');
-        image_r.fetch({query: 'select * from image where tag in (' + id + ')'});
+        image_r.fetch({query: 'select * from image where tag in (' + tag_str + ')'});
     }
     else {
         image_r.fetch();
@@ -720,6 +720,7 @@ function open_image_list() {
     var children = $.image_list.children.slice(0);
     if (children) {
         for (var i = 0; i < children.length; i++) {
+            Ti.API.info("remove children");
             $.image_list.remove(children[i]);
         }
     }
@@ -822,12 +823,13 @@ function open_import_list() {
 
 function save_images() {
     var view = $.import_container.children.slice(0)[1];
-    images = view.children.slice(0);
+    var images = view.children.slice(0);
 
     Ti.API.info("images.length: " + images.length);
     for (var i = 0; i < images.length; i++) {
 
-        if ( !images[i].hasCheck ) { continue; }
+        Ti.API.info("loop cnt : " + i);
+        if ( !images[i].hasCheck ) { Ti.API.info("! hasCheck: " + i); continue; }
 
         var o = images[i];
         var id = get_image_seq();
