@@ -16,6 +16,7 @@ function changeView3() {
 }
 function changeView4() {
 	changeView(4);
+    open_import_list();
 }
 function changeView5() {
 	changeView(5);
@@ -36,7 +37,7 @@ function changeView(num) {
 	$.tag_list.visible=winNum[1];
 	$.album.visible=winNum[2];
 	$.image_list.visible=winNum[3];
-	$.camera.visible=winNum[4];
+	$.import_container.visible=winNum[4];
 	$.photo.visible=winNum[5];
 
 	$.button1.height = buttonSize[1];
@@ -320,7 +321,6 @@ function doClick5() {
         });
 
         image.addEventListener('click', function(event){
-alert(event);
 
             var image_win = Ti.UI.createWindow({
                 backgroundColor: 'white'
@@ -384,6 +384,7 @@ function create_image_list() {
         scrollType: 'vertical',
         cancelBubble: true
     });
+    Ti.API.info("image_ids.length : " + image_ids.length);
 
     var row;
     for ( var i = 0, max = image_ids.length; i < max; i++ ) {
@@ -498,18 +499,7 @@ function create_image_list() {
 //    var win = Ti.UI.createWindow({
 //        backgroundColor: 'black'
 //    });
-    var win = $.image_list;
-    var cancel_btn = Titanium.UI.createButton({title: 'close', height: 40, width: 100});
-    cancel_btn.addEventListener('click', function() {
-        win.close();
-    });
-    win.rightNavButton = cancel_btn;
-    win.add(scrollView);
-//    win.open({
-//        modal:true,
-//        modalTransitionStyle: Titanium.UI.iPhone.MODAL_TRANSITION_STYLEFLIP_HORIZONTAL,
-//        modalStyle: Titanium.UI.iPhone.MODAL_PRESENTATION_FORMSHEET
-//    });
+    $.image_list.add(scrollView);
 }
 
 function get_tag_groups(tag) {
@@ -736,5 +726,149 @@ function open_image_list() {
     create_image_list();
 }
 
+function open_import_list() {
+    
+    var view = Ti.UI.createScrollView({
+        contentWidth: Ti.Platform.displayCaps.platformWidth,
+        contentHeight: 'auto',
+        layout: 'horizontal',
+        scrollType: 'vertical',
+        cancelBubble: true,
+        top: 50 + 'dp'
+    });
+    var assetslibrary = require('ti.assetslibrary');
+    var g = [assetslibrary.AssetsGroupTypeAll];
+    assetslibrary.getGroups(g, function(e) {
+        var list = e.groups;
+        for (var i = 0; i < list.length; i++) {
+            var ao = list[i];
+            Ti.API.info(ao.name);
+            ao.getAssets(function(e) {
+                var al = e.assets;
+                var length = al.assetsCount;
+                if (length < 1) {
+                    return;
+                }
+                Ti.API.info("length : " + length);
+                for (var i = 0; i < length; i++) {
+                    var o = al.getAssetAtIndex(i);
+
+                    Ti.API.info(o.defaultRepresentation.fullResolutionImage);
+
+                    var perRow = 4;
+                    var cellWidth = Titanium.Platform.displayCaps.platformWidth / perRow;
+                    var cellHeight = cellWidth;
+
+                    var image = Titanium.UI.createImageView({
+                        image: o.defaultRepresentation.fullResolutionImage,
+                        width: cellWidth,
+                        height: cellHeight,
+                        bubbleParent: false,
+                        cancelBubble: true,
+                        ext: {
+                            image: o.defaultRepresentation.fullResolutionImage,
+                            filename: o.defaultRepresentation.filename,
+                        }
+                    });
+                    Ti.API.info(o.defaultRepresentation.filename);
+                    image.addEventListener('click', function(e) {
+                        t = this;
+                        t.hasCheck = !(t.hasCheck);
+                        Ti.API.info(t.hasCheck);
+
+                        if ( t.hasCheck ) {
+                            var icon = Ti.UI.createImageView({
+                                image: '/check_icon.jpg',
+                                width: Titanium.Platform.displayCaps.platformWidth / 20,
+                                height: Titanium.Platform.displayCaps.platformWidth / 20,
+                                bubbleParent: false,
+                                cancelBubble: true,
+                                top: 0,
+                                right: 0,
+                            });
+                            t.add(icon);
+                        } else {
+                            var children = t.children.slice(0);
+                            if ( children ) {
+                                for (var i = 0; i < children.length; i++) {
+                                    t.remove(children[i]);
+                                }
+                            }
+                        }
+                    });
+                    view.add(image);
+                }
+            });
+        }
+    }, function(e) {
+    });
+
+    var save_images_btn = Titanium.UI.createButton({title: 'save', height: 40, width: 100});
+    save_images_btn.addEventListener('click', function() {
+        save_images();
+        alert('save images completed');
+    });
+    var tool_bar = Ti.UI.iOS.createToolbar({
+        items: [save_images_btn],
+        top: 0,
+        height: 50 + 'dp',
+        borderTop: false,
+        borderButtom: true,
+        barColor: '#999'
+    });
+    $.import_container.add(tool_bar);
+    $.import_container.add(view);
+}
+
+function save_images() {
+    var view = $.import_container.children.slice(0)[1];
+    images = view.children.slice(0);
+
+    Ti.API.info("images.length: " + images.length);
+    for (var i = 0; i < images.length; i++) {
+
+        if ( !images[i].hasCheck ) { continue; }
+
+        var o = images[i];
+        var id = get_image_seq();
+        var file = Ti.Filesystem.getFile(
+            Titanium.Filesystem.applicationDataDirectory + "/" + id + '.png'
+        );
+        if (!file.exists()) { file.createFile(); }
+        file.write(o.image);
+        save_image_info(id);
+    }
+}
+
+function get_image_seq() {
+    var id;
+
+    var seq_image_r = Alloy.createCollection('seq_image');
+    seq_image_r.fetch();
+
+    var seq_image_w;
+    if ( seq_image_r.length < 1 ) {
+        seq_image_w = Alloy.createModel('seq_image', {"id" : 0});
+        seq_image_w.save();
+        seq_image_r = Alloy.createCollection('seq_image');
+        seq_image_r.fetch();
+    }
+
+    seq_image_r.map(function(row) {
+        id = row.get('id') + 1;
+        row.set({'id':id});
+        row.save();
+    });
+    return id;
+}
+
+function save_image_info(id) {
+    var image_w = Alloy.createModel('image', {
+        'id': id,
+        'name': 'name' + id,
+        'created_at': String(new Date().getTime())
+    });
+    image_w.save();
+}
 
 $.index.open();
