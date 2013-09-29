@@ -51,6 +51,6 @@
         <plugin version="1.0">ti.alloy</plugin>
     </plugins>
     <modules>
-        <module version="0.2" platform="iphone">ti.assetslibrary</module>
+        <module platform="iphone" version="0.2">ti.assetslibrary</module>
     </modules>
 </ti:app>

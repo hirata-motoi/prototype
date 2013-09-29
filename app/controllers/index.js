@@ -759,20 +759,18 @@ function open_import_list() {
                 for (var i = 0; i < length; i++) {
                     var o = al.getAssetAtIndex(i);
 
-                    Ti.API.info(o.defaultRepresentation.fullResolutionImage);
-
                     var perRow = 4;
                     var cellWidth = Titanium.Platform.displayCaps.platformWidth / perRow;
                     var cellHeight = cellWidth;
 
                     var image = Titanium.UI.createImageView({
-                        image: o.defaultRepresentation.fullResolutionImage,
+                        image: o.thumbnail,
                         width: cellWidth,
                         height: cellHeight,
                         bubbleParent: false,
                         cancelBubble: true,
                         ext: {
-                            image: o.defaultRepresentation.fullResolutionImage,
+                            image: o.thumbnail,
                             filename: o.defaultRepresentation.filename,
                         }
                     });

@@ -1,9 +1,9 @@
-#appname: prototype
-#appid: org.waremon.prototype
-#type: mobile
-#guid: 9aa2c18f-4e86-4a4b-a175-b7ff9b7d049b
-#version: 1.0
-#publisher: not specified
-#url: not specified
-#image: appicon.png
-#desc: not specified
+#appname:prototype
+#appid:org.waremon.prototype
+#type:mobile
+#guid:9aa2c18f-4e86-4a4b-a175-b7ff9b7d049b
+#version:1.0
+#publisher:hirata.motoi
+#url:http://
+#image:appicon.png
+#desc:not specified
