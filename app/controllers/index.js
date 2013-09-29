@@ -728,6 +728,11 @@ function open_image_list() {
 }
 
 function open_import_list() {
+
+    var previous_views = $.import_container.children.slice(0);
+    for (var i = 0; i < previous_views.length; i++) {
+        $.import_container.remove(previous_views[i]);
+    }
     
     var view = Ti.UI.createScrollView({
         contentWidth: Ti.Platform.displayCaps.platformWidth,
@@ -772,6 +777,7 @@ function open_import_list() {
                         }
                     });
                     Ti.API.info(o.defaultRepresentation.filename);
+
                     image.addEventListener('click', function(e) {
                         t = this;
                         t.hasCheck = !(t.hasCheck);
