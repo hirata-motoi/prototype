@@ -401,6 +401,7 @@ function create_image_list() {
         });
 
         image.addEventListener('click', function(e){
+            var image_id = e.source.ext.id;
 
             var image_win = Ti.UI.createWindow({
                 backgroundColor: 'white'
@@ -410,81 +411,128 @@ function create_image_list() {
                 image_win.close();
             });
             var image_view = Ti.UI.createView();
+            var inner_view = Ti.UI.createView();
             var focused_image = Ti.UI.createImageView({
-                image: e.source.ext.image,
-                width: 200,
+                image: e.source.ext.image, 
+                top: 0,
+                right: 0,
+                width: "100%",
                 ext: {
-                    id: e.source.ext.id
-                }
+                    id: image_id
+                },
+                layout: 'absolute'
             });
-            focused_image.addEventListener('click', function(e){
-                var dialog = Ti.UI.createAlertDialog({
-                    title: "select tag",
-                    message: "please choose a tag",
-                    buttonNames: ['mariko','kojiharu', 'hoge', 'cancel'],
-                    cancel: 3,
+
+            var tags = ['smile', 'sleep', 'angry', 'laugh', 'eat', 'cry'];
+            var tag_set_view = Ti.UI.createView({
+                backgroundColor: 'blue',
+                opacity: 0.8,
+                bottom: 0,
+                height: 144
+            });
+            var tag_set = Titanium.UI.createScrollView({
+                    top: 10 + "dp",
+                    left : 0 + "dp",
+                    contentHeight : 100 + "dp",
+                    height : 100 + "dp",
+                    width : "100%",
+                    contentWidth : (100 * tags.length) + "dp",
+                    scrollType : "horizontal",
+                    backgroundColor : "black",
+            });
+            for (var i = 0; i < tags.length; i++) {
+                var v = Ti.UI.createView({
+                    backgroundColor: "#ffffff",
+                    borderWidth: 1,
+                    top: "0dp",
+                    height: "100dp",
                     ext: {
-                        id: e.source.ext.id
+                        tag: tags[i]
                     }
                 });
-                dialog.addEventListener('click', function(e) {
-                    Ti.API.info(e.index);
-                    var id = e.source.ext.id;
-                    var tag;
-                    if (e.index == 0) {
-                        tag = 'mariko';
-                        save_tag_info(id, tag);
-                    }
-                    if (e.index == 1) {
-                        tag = 'kojiharu';
-                        save_tag_info(id, tag);
-                    }
-                    if (e.index == 2) {
-                        tag = 'hoge';
-                        save_tag_info(id, tag);
-                    }
-                    if (e.cancel) {
-                        Ti.API.info("canceled");
-                        return;
-                    }
+                v.left  = i * 100 + "dp";
+                v.width = 100 + "dp";
+                var label = Ti.UI.createLabel({
+                    color: "#000",
+                    font: {
+                        fontSize: "14dp"
+                    },
+                    width: '90dp',
+                    textAlign: 'center',
+                    height: '90dp',
+                    backgroundColor: "#ddd",
+                    bubbleParent: true,
                 });
-                dialog.show();
-//                var tag_win = Ti.UI.createWindow({
-//                    backgroundColor: 'black',
-//                    height: 200,
+                label.text = tags[i];
+                label.name = tags[i];
+
+                v.addEventListener('click', function(){
+                    Ti.API.info(this.ext);
+                    save_tag_info(image_id, this.ext.tag);
+                    set_tag_mini_icon(image_id, inner_view);
+                });
+                v.add(label);
+                tag_set.add(v);
+            }
+            tag_set_view.add(tag_set);
+
+            tag_set_view.hide();
+            focused_image.addEventListener('click', function(e){
+                if (tag_set_view.visible) {
+                    tag_set_view.hide();
+                } else {
+                    tag_set_view.show();
+                }
+//                var dialog = Ti.UI.createAlertDialog({
+//                    title: "select tag",
+//                    message: "please choose a tag",
+//                    buttonNames: ['mariko','kojiharu', 'hoge', 'cancel'],
+//                    cancel: 3,
 //                    ext: {
 //                        id: e.source.ext.id
 //                    }
 //                });
-//                var tag_btn = Ti.UI.createButton({
-//                    title: 'smile',
-//                    height: 44,
-//                    width: 70,
-//                    ext: {
-//                        id: e.source.ext.id,
-//                        tag: 'smile'
+//                dialog.addEventListener('click', function(e) {
+//                    Ti.API.info(e.index);
+//                    var id = e.source.ext.id;
+//                    var tag;
+//                    if (e.index == 0) {
+//                        tag = 'mariko';
+//                        save_tag_info(id, tag);
+//                    }
+//                    if (e.index == 1) {
+//                        tag = 'kojiharu';
+//                        save_tag_info(id, tag);
+//                    }
+//                    if (e.index == 2) {
+//                        tag = 'hoge';
+//                        save_tag_info(id, tag);
+//                    }
+//                    if (e.cancel) {
+//                        Ti.API.info("canceled");
+//                        return;
 //                    }
 //                });
-//                tag_btn.addEventListener('click', function(e) {
-//                    id  = e.source.ext.id;
-//                    tag = e.source.ext.tag;
-//                    save_tag_info(id, tag);
-//                });
-//                tag_win.add(tag_btn);
-//                cancel_btn = Ti.UI.createButton({title: 'close', height: 40, width: 100});
-//                cancel_btn.addEventListener('click', function(){
-//                    tag_win.close();
-//                });
-//                tag_win.rightNavButton = cancel_btn;
-//                tag_win.open({
-//                    modal:true,
-//                    modalTransitionStyle: Titanium.UI.iPhone.MODAL_TRANSITION_STYLEFLIP_HORIZONTAL,
-//                    modalStyle: Titanium.UI.iPhone.MODAL_PRESENTATION_FORMSHEET
-//                });
+//                dialog.show();
             });
 
-            image_view.add(focused_image);
+            inner_view.add(focused_image);
+            set_tag_mini_icon(image_id, inner_view);
+            image_view.add(inner_view);
             image_win.add(image_view);
+            image_win.add(tag_set_view);
+            
+            // tool bar
+            var flexSpace = Ti.UI.createButton({
+                systemButton: Ti.UI.iPhone.SystemButton.FLEXIBLE_SPACE
+            });
+            var buttonBack = Ti.UI.createButton({
+                title: String.fromCharCode(0x25c0)
+            });
+            var buttonForward = Ti.UI.createButton({
+                title: String.fromCharCode(0x25b6)
+            });
+            image_win.setToolbar([flexSpace, buttonBack, flexSpace, buttonForward, flexSpace]);
 
             image_win.rightNavButton = image_win_cancel_btn;
             image_win.open({
@@ -492,6 +540,7 @@ function create_image_list() {
                 modalTransitionStyle: Titanium.UI.iPhone.MODAL_TRANSITION_STYLEFLIP_HORIZONTAL,
                 modalStyle: Titanium.UI.iPhone.MODAL_PRESENTATION_FORMSHEET
             });
+            tag_set_view.show();
         });
         scrollView.add(image);
     }
@@ -875,6 +924,62 @@ function save_image_info(id) {
         'created_at': String(new Date().getTime())
     });
     image_w.save();
+}
+
+function get_tag_info_by_ids(ids) {
+    if (!ids || ids.length == 0) { return; }
+
+    var tag_r = Alloy.createCollection('image_tag');
+
+    var ids_str = ids.join(',');
+    tag_r.fetch({query: 'select * from image_tag where tag is not null and disabled = 0 and id in (' + ids_str + ')'});
+
+    var tag_info = new Array();
+    tag_r.map(function(row) {
+        var image_id = row.get('id');
+        var tag = row.get('tag');
+        
+        if ( ! tag_info[image_id] ) {
+            tag_info[image_id] = new Array();
+        }
+
+        tag_info[image_id].push(tag);
+    });
+    return tag_info;
+
+}
+
+function set_tag_mini_icon(image_id, inner_view) {
+    var tag_info = get_tag_info_by_ids([image_id]);
+    if (!tag_info || !tag_info[image_id]) { return; }
+    Ti.API.info("tag_info.length:" + tag_info[image_id].length);
+    var tag_view = Ti.UI.createView({
+        backgroundColor: 'white',
+        top: 0,
+        right: 0,
+        width: 40,
+        height: 20 * tag_info[image_id].length,
+    });
+    for (var i = 0; i < tag_info[image_id].length; i++) {
+        var label = Ti.UI.createLabel({
+            color: "#000",
+            font: {
+                fontSize: "4dp"
+            },
+            width: '40dp',
+            textAlign: 'center',
+            height: '20dp',
+            top: (20 * i) + "dp",
+            left: 0,
+            right: 0,
+            backgroundColor: "#ddd",
+            borderColor: "black"
+        });
+        label.text = tag_info[image_id][i];
+        label.name = tag_info[image_id][i];
+        tag_view.add(label);
+    }
+    inner_view.add(tag_view);
 }
 
 $.index.open();
