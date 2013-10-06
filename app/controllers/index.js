@@ -658,79 +658,71 @@ function create_tag_list(tag) {
 }
 
 function open_tag_list() {
-//    var children = $.tag_list.children.slice(0);
-//    if (children) {
-//        for (var i = 0; i < children.length; i++) {
-//            $.tag_list.remove(children[i]);
-//        }
-//    }
-//    create_tag_list();
-	var tag_num = 3;
-	var arrayWord = new Array(6);
+
+    var tags = get_tag_groups();
+	var tag_num = tags.length;
 	
 	var hostScrollView = Titanium.UI.createScrollView({
-		top : "0dp",
-		left : "0dp",
-		contentWidth : "100dp",
-		height : "100%",
-		width : "100%",
-		contentHeight : (150 * tag_num) + "dp",
-		scrollType : "vertical",
+		top             : "0dp",
+		left            : "0dp",
+		contentWidth    : "100dp",
+		height          : "100%",
+		width           : "100%",
+		contentHeight   : "auto",
+		scrollType      : "vertical",
 		backgroundColor : "red",
 	});
 	
-	var guestScrollView = new Array(tag_num);
-	var guestTagView = new Array(tag_num);
-	var guestTagLabel = new Array(tag_num);
-	var imageListImageView = new Array(tag_num * 6);
-	for (var i = 0; i < tag_num; i++) {
+    var tag_count = 0;
+	for (var tag_name in tags) {
 		// Tag View
-		guestTagView[i] = Ti.UI.createView({
+		var guestTagView = Ti.UI.createView({
 			backgroundColor : "#ffffff",
 			borderWidth : 1,
-			top : (150 * i) + "dp",
+			top : (150 * tag_count) + "dp",
 			height : "50dp",
 			width: "100%",
 		});
-		guestTagLabel[i] = Ti.UI.createLabel({
+		var guestTagLabel = Ti.UI.createLabel({
 			color : "#000",
 			font : {
 				fontSize : "14dp"
 			},
-			text: "tag" + i,
+			text: tag_name,
 			width : "100%",
 			textAlign : "center",
 			height : "50dp",
 			backgroundColor : "#ddd"
 		});
-		guestTagView[i].add(guestTagLabel[i]);
+		guestTagView.add(guestTagLabel);
 		// Images View
-		guestScrollView[i] = Titanium.UI.createScrollView({
-			top : (150 * i + 50) + "dp",
+		var guestScrollView = Titanium.UI.createScrollView({
+			top : (150 * tag_count + 50) + "dp",
 			left : "0dp",
 			contentHeight : "100dp",
 			height : "100dp",
 			width : "100%",
-			contentWidth : (100 * arrayWord.length) + "dp",
+			contentWidth : (100 * tags[tag_name].length) + "dp",
 			scrollType : "horizontal",
 			backgroundColor : "blue",
 		});
 
-		for(var j = 0; j < arrayWord.length; j++) {
-			var image_num = i*(arrayWord.length) + j;
+		for(var j = 0; j < tags[tag_name].length; j++) {
 			var imageListView = Ti.UI.createView({
 				backgroundColor : "#ffffff",
 				borderWidth : 10,
 				top : "0dp",
 				height : "100dp"
 			});
-			imageListView.left = j * 100 + "dp";
+			imageListView.left = (j * 100) + "dp";
 			imageListView.width = 100 + "dp";
-			imageListImageView[image_num] = Ti.UI.createImageView({
-				image: "/icon" + (i+1) + ".png",
+
+            var image_id = tags[tag_name][j];
+			var imageListImageView = Ti.UI.createImageView({
+                image: Titanium.Filesystem.applicationDataDirectory + '/' + image_id + '.png'
 			});
-			imageListView.add(imageListImageView[image_num]);
-			imageListImageView[image_num].addEventListener('click', function(){
+			imageListView.add(imageListImageView);
+			imageListImageView.addEventListener('click', function(){
 				var imageListBigImageBackView = Ti.UI.createView({
 					backgroundImage: "/tag_table_back.png",
 					width:"100%",
@@ -746,21 +738,14 @@ function open_tag_list() {
 					animation.fadeOut(this, 500);
 //					$.tag_list.remove(this);
 				});
-//				imageListBigImageBackView.visible = "false";
-//				animation.fadeOut(imageListBigImageBackView, 0);
-//				imageListBigImageBackView.visible = "true";
 				$.tag_list.add(imageListBigImageBackView);
-//				animation.fadeIn(imageListBigImageBackView, 500);
-//				$.tag_list.add(imageListBigImageBackView);
-//				animation.fadeOut(imageListBigImageBackView, 0);
-//				imageListBigImageBackView.visible = "true";
-
-//				imageListBigImageBackView.visible = "true";
 			});
-			guestScrollView[i].add(imageListView);
+			guestScrollView.add(imageListView);
 		}
-		hostScrollView.add(guestTagView[i]);
-		hostScrollView.add(guestScrollView[i]);
+		hostScrollView.add(guestTagView);
+		hostScrollView.add(guestScrollView);
+
+        tag_count = tag_count + 1;
 	}
 	$.tag_list.add(hostScrollView);
 };
