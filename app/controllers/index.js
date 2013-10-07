@@ -9,6 +9,7 @@ function changeView1() {
 }
 function changeView2() {
 	changeView(2);
+	open_camera_view();
 }
 function changeView3() {
 	changeView(3);
@@ -35,7 +36,7 @@ function changeView(num) {
 		}
 	}
 	$.tag_list.visible=winNum[1];
-	$.album.visible=winNum[2];
+	$.camera.visible=winNum[2];
 	$.image_list.visible=winNum[3];
 	$.import_container.visible=winNum[4];
 	$.photo.visible=winNum[5];
@@ -965,6 +966,19 @@ function set_tag_mini_icon(image_id, inner_view) {
         tag_view.add(label);
     }
     inner_view.add(tag_view);
+}
+
+function open_camera_view() {
+	var TiCamera = require('be.k0suke.ticamera');
+	var cameraView = TiCamera.createView({
+    	width: 240,
+    	height: 320,
+    	backgroundColor: '#000',
+    	videoQuality: TiCamera.QUALITY_MEDIUM,
+    	cameraPosition: TiCamera.hasFrontCamera() ? TiCamera.CAMERA_FRONT : TiCamera.CAMERA_BACK,
+    	frameDuration: 16
+	});
+	$.camera.add(cameraView);
 }
 
 $.index.open();

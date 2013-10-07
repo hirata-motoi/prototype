@@ -52,5 +52,6 @@
     </plugins>
     <modules>
         <module platform="iphone" version="0.2">ti.assetslibrary</module>
+        <module platform="iphone" version="0.1">be.k0suke.ticamera</module>
     </modules>
 </ti:app>

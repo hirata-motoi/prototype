@@ -8,8 +8,7 @@
 				<Button id="close_tag">CLOSE</Button>
 			</View>
 		</View>
-        <View id="album">
-            <Label id="label" onClick="doClick3">access photo album</Label>
+        <View id="camera">
 		</View>
 		<View id="image_list">
 		</View>

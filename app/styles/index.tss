@@ -5,9 +5,9 @@
 	bottom:"60",
 }
 
-"#album": {
-	backgroundColor:"white",
-	backgroundImage:"/image2.jpg",
+"#camera": {
+//	backgroundColor:"white",
+//	backgroundImage:"/image2.jpg",
 	visible:"false",
 	bottom:"60",
 }
