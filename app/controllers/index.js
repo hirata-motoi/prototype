@@ -542,7 +542,6 @@ function create_image_list() {
                 modalTransitionStyle: Titanium.UI.iPhone.MODAL_TRANSITION_STYLEFLIP_HORIZONTAL,
                 modalStyle: Titanium.UI.iPhone.MODAL_PRESENTATION_FORMSHEET
             });
-            tag_set_view.show();
         });
         scrollView.add(image);
     }
@@ -980,7 +979,17 @@ function open_normal_camera() {
                 height:$.camera.height,
                 image:event.media
             });
-            $.camera.add(imageView);
+            // save image
+            var id = get_image_seq();
+            var file = Ti.Filesystem.getFile(
+            	Titanium.Filesystem.applicationDataDirectory + "/" + id + '.png'
+        	);
+        	if (!file.exists()) { file.createFile(); }
+        	file.write(imageView.image);
+        	save_image_info(id);
+            
+            // after view
+            changeView3();
         } else {
             alert("got the wrong type back ="+event.mediaType);
         }
