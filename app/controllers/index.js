@@ -9,7 +9,8 @@ function changeView1() {
 }
 function changeView2() {
 	changeView(2);
-	open_camera_view();
+	open_normal_camera();
+//	open_camera_view();
 }
 function changeView3() {
 	changeView(3);
@@ -968,17 +969,56 @@ function set_tag_mini_icon(image_id, inner_view) {
     inner_view.add(tag_view);
 }
 
+function open_normal_camera() {
+	Titanium.Media.showCamera({
+    success:function(event) {
+        // called when media returned from the camera
+        Ti.API.debug('Our type was: '+event.mediaType);
+        if(event.mediaType == Ti.Media.MEDIA_TYPE_PHOTO) {
+            var imageView = Ti.UI.createImageView({
+                width:$.camera.width,
+                height:$.camera.height,
+                image:event.media
+            });
+            $.camera.add(imageView);
+        } else {
+            alert("got the wrong type back ="+event.mediaType);
+        }
+    },
+    cancel:function() {
+        // called when user cancels taking a picture
+    },
+    error:function(error) {
+        // called when there's an error
+        var a = Titanium.UI.createAlertDialog({title:'Camera'});
+        if (error.code == Titanium.Media.NO_CAMERA) {
+            a.setMessage('Please run this test on device');
+        } else {
+            a.setMessage('Unexpected error: ' + error.code);
+        }
+        a.show();
+    },
+    saveToPhotoGallery:true,
+    allowEditing:false,
+    mediaTypes:[Ti.Media.MEDIA_TYPE_PHOTO]
+});
+}
+
 function open_camera_view() {
 	var TiCamera = require('be.k0suke.ticamera');
 	var cameraView = TiCamera.createView({
-    	width: 240,
-    	height: 320,
+    	width: $.camera.width,
+    	height: $.camera.height,
     	backgroundColor: '#000',
-    	videoQuality: TiCamera.QUALITY_MEDIUM,
-    	cameraPosition: TiCamera.hasFrontCamera() ? TiCamera.CAMERA_FRONT : TiCamera.CAMERA_BACK,
+    	videoQuality: TiCamera.QUALITY_1280x720,
+    	cameraPosition: is_front_camera() ? TiCamera.CAMERA_FRONT : TiCamera.CAMERA_BACK,
     	frameDuration: 16
 	});
 	$.camera.add(cameraView);
+}
+
+function is_front_camera() {
+	return false;
 }
 
 $.index.open();
