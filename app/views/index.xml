@@ -22,7 +22,6 @@
 			<Button id="button2" onClick="changeView2"></Button>
 			<Button id="button3" onClick="changeView3"></Button>
 			<Button id="button4" onClick="changeView4"></Button>
-			<Button id="button5" onClick="changeView5"></Button>
 		</View>
 	</Window>
 </Alloy>

@@ -2,35 +2,40 @@
 	backgroundColor:"white",
 	backgroundImage:"/image1.jpg",
 	visible:"true",
-	bottom:"60",
+	bottom:"100",
+	backgroundColor:"#FFEBCD",
 }
 
 "#camera": {
 //	backgroundColor:"white",
 //	backgroundImage:"/image2.jpg",
 	visible:"false",
-	bottom:"60",
+	bottom:"100",
+	backgroundColor:"#FFEBCD",
 }
 
 "#image_list": {
 	backgroundColor:"white",
 	backgroundImage:"/image3.jpg",
 	visible:"false",
-	bottom:"60",
+	bottom:"100",
+	backgroundColor:"#FFEBCD",
 }
 
 "#camera": {
 	backgroundColor:"white",
 	backgroundImage:"/image4.jpg",
 	visible:"false",
-	bottom:"60",
+	bottom:"100",
+	backgroundColor:"#FFEBCD",
 }
 
 "#photo": {
 	backgroundColor:"white",
 	backgroundImage:"/image5.jpg",
 	visible:"false",
-	bottom:"60",
+	bottom:"100",
+	backgroundColor:"#FFEBCD",
 }
 
 "#tag_table": {
@@ -56,9 +61,9 @@
 }
 
 "#button_view": {
-	 backgroundColor:"white",
-	 height:"60",
+	 height:"100",
 	 bottom:"0",
+	 backgroundColor:"#FFEBCD",
 }
 
 "#button1": {
@@ -74,9 +79,5 @@
 }
 
 "#button4": {
-	backgroundImage:"/icon3.png"
-}
-
-"#button5": {
 	backgroundImage:"/icon3.png"
 }

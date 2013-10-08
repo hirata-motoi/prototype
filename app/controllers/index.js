@@ -20,20 +20,17 @@ function changeView4() {
 	changeView(4);
     open_import_list();
 }
-function changeView5() {
-	changeView(5);
-}
 
 function changeView(num) {
-	var winNum = new Array(6);
-	var buttonSize = new Array(6);
-	for (var i = 1; i < 6; i++) {
+	var winNum = new Array(5);
+	var buttonSize = new Array(5);
+	for (var i = 1; i < 5; i++) {
 		if(i == num) {
 			winNum[i] = "true";
-			buttonSize[i] = "60";
+			buttonSize[i] = "90";
 		} else {
 			winNum[i] = "flase";
-			buttonSize[i] = "50";
+			buttonSize[i] = "70";
 		}
 	}
 	$.tag_list.visible=winNum[1];
@@ -50,23 +47,20 @@ function changeView(num) {
 	$.button3.width = buttonSize[3];
 	$.button4.height = buttonSize[4];
 	$.button4.width = buttonSize[4];
-	$.button5.height = buttonSize[5];
-	$.button5.width = buttonSize[5];
 
 	adjustSpace();
 }
 
 function adjustSpace() {
 	var viewWidth = Titanium.Platform.displayCaps.platformWidth;
-	var centerPoint = new Array(6);
-	for(var i = 1; i < 6; i++) {
-		centerPoint[i] = viewWidth*i/6;
+	var centerPoint = new Array(5);
+	for(var i = 1; i < 9; i++) {
+		centerPoint[i] = viewWidth*i/8;
 	}
 	$.button1.left = centerPoint[1] - $.button1.width/2;
-	$.button2.left = centerPoint[2] - $.button2.width/2;
-	$.button3.left = centerPoint[3] - $.button3.width/2;
-	$.button4.left = centerPoint[4] - $.button4.width/2;
-	$.button5.left = centerPoint[5] - $.button5.width/2;
+	$.button2.left = centerPoint[3] - $.button2.width/2;
+	$.button3.left = centerPoint[5] - $.button3.width/2;
+	$.button4.left = centerPoint[7] - $.button4.width/2;
 }
 
 changeView1();
@@ -671,7 +665,7 @@ function open_tag_list() {
 		width           : "100%",
 		contentHeight   : "auto",
 		scrollType      : "vertical",
-		backgroundColor : "red",
+//		backgroundColor : "red",
 	});
 	
     var tag_count = 0;
@@ -705,7 +699,7 @@ function open_tag_list() {
 			width : "100%",
 			contentWidth : (100 * tags[tag_name].length) + "dp",
 			scrollType : "horizontal",
-			backgroundColor : "blue",
+//			backgroundColor : "blue",
 		});
 
 		for(var j = 0; j < tags[tag_name].length; j++) {
