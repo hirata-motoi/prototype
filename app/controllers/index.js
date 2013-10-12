@@ -4,6 +4,7 @@ var animation = require('alloy/animation');
 // About View
 
 function changeView1() {
+    remove_open_list();
 	changeView(1);
 	open_tag_list();
 }
@@ -652,9 +653,20 @@ function create_tag_list(tag) {
     tag_win.add(scrollView);
 }
 
+function remove_open_list() {
+    var children = $.tag_list.children.slice(0);
+    if (children) {
+        for (var i = 0; i < children.length; i++) {
+            Ti.API.info("remove children");
+            $.tag_list.remove(children[i]);
+        }
+    }
+}
+
 function open_tag_list() {
 
     var tags = get_tag_groups();
+    tags['no tag'] = get_images_without_tag();
 	var tag_num = tags.length;
 	
 	var hostScrollView = Titanium.UI.createScrollView({
@@ -714,27 +726,31 @@ function open_tag_list() {
 
             var image_id = tags[tag_name][j];
 			var imageListImageView = Ti.UI.createImageView({
-                image: Titanium.Filesystem.applicationDataDirectory + '/' + image_id + '.png'
+                image: Titanium.Filesystem.applicationDataDirectory + '/' + image_id + '.png',
+                ext: {
+                    id: image_id,
+                }
 			});
 			imageListView.add(imageListImageView);
-			imageListImageView.addEventListener('click', function(){
-				var imageListBigImageBackView = Ti.UI.createView({
-					backgroundImage: "/tag_table_back.png",
-					width:"100%",
-					height:"100%",
-				});
-				var imageListBigImageView = Ti.UI.createImageView({
-					image: this.image,
-					width: "90%",
-					height: "90%",
-				});
-				imageListBigImageBackView.add(imageListBigImageView);
-				imageListBigImageBackView.addEventListener('click', function(){
-					animation.fadeOut(this, 500);
-//					$.tag_list.remove(this);
-				});
-				$.tag_list.add(imageListBigImageBackView);
-			});
+            imageListImageView.addEventListener('click', show_zoom_image);
+//			imageListImageView.addEventListener('click', function(){
+//				var imageListBigImageBackView = Ti.UI.createView({
+//					backgroundImage: "/tag_table_back.png",
+//					width:"100%",
+//					height:"100%",
+//				});
+//				var imageListBigImageView = Ti.UI.createImageView({
+//					image: this.image,
+//					width: "90%",
+//					height: "90%",
+//				});
+//				imageListBigImageBackView.add(imageListBigImageView);
+//				imageListBigImageBackView.addEventListener('click', function(){
+//					animation.fadeOut(this, 500);
+////					$.tag_list.remove(this);
+//				});
+//				$.tag_list.add(imageListBigImageBackView);
+//			});
 			guestScrollView.add(imageListView);
 		}
 		hostScrollView.add(guestTagView);
@@ -742,8 +758,40 @@ function open_tag_list() {
 
         tag_count = tag_count + 1;
 	}
+    
 	$.tag_list.add(hostScrollView);
 };
+
+function show_zoom_image(e) {
+    var image_id = e.source.ext.id;
+
+	var imageListBigImageBackView = Ti.UI.createView({
+		backgroundImage: "/tag_table_back.png",
+		width:"100%",
+		height:"100%",
+	});
+	var imageListBigImageView = Ti.UI.createImageView({
+		image: this.image,
+		width: "80%",
+		height: "80%",
+        top: 0,
+	});
+	imageListBigImageBackView.add(imageListBigImageView);
+    var tag_set = create_tag_set(e, imageListBigImageView);
+
+    set_tag_mini_icon(image_id, imageListBigImageView);
+
+	imageListBigImageBackView.add(tag_set);
+    Ti.API.info("set tag_set end");
+
+	imageListBigImageBackView.addEventListener('click', function(){
+		animation.fadeOut(this, 500);
+//		$.tag_list.remove(this);
+	});
+    Ti.API.info("add view to window");
+	$.index.add(imageListBigImageBackView);
+    Ti.API.info("add view to window end");
+}
 
 function open_image_list() {
     var children = $.image_list.children.slice(0);
@@ -1022,6 +1070,119 @@ function open_camera_view() {
 
 function is_front_camera() {
 	return false;
+}
+
+//
+function get_images_without_tag() {
+    var with_tag = get_tag_groups();
+    var all_images = get_image_path_list();
+    var all_image_hash = {};
+    for (var i = 0; i < all_images.length; i++) {
+        Ti.API.info("all_images image_id: " + all_images[i]);
+        all_image_hash[ all_images[i] ] = 1;
+    }
+
+    for (var t in with_tag) {
+        for (var j = 0; j < t.length; j++) {
+            var image_id = with_tag[t][j];
+            Ti.API.info("image_id: " + image_id);
+            if (all_image_hash[image_id]) {
+                Ti.API.info("delete image_id: " + image_id);
+                delete all_image_hash[image_id];
+            }
+        }
+    }
+
+    var without_tag = new Array();
+    for (var id in all_image_hash) {
+        without_tag.push(id);
+    }
+    return without_tag;
+}
+
+function create_tag_set(e, imageListBigImageView) {
+    Ti.API.info(e);
+    var image_id = e.source.ext.id;
+
+//    var image_win = Ti.UI.createWindow({
+//        backgroundColor: 'white'
+//    });
+//    var image_win_cancel_btn = Titanium.UI.createButton({title: 'close', height: 40, width: 100});
+//    image_win_cancel_btn.addEventListener('click', function() {
+//        image_win.close();
+//    });
+//    var image_view = Ti.UI.createView();
+//    var inner_view = Ti.UI.createView();
+//    var focused_image = Ti.UI.createImageView({
+//        image: e.source.ext.image, 
+//        top: 0,
+//        right: 0,
+//        width: "100%",
+//        ext: {
+//            id: image_id
+//        },
+//        layout: 'absolute'
+//    });
+
+    var tags = ['smile', 'sleep', 'angry', 'laugh', 'eat', 'cry'];
+    var tag_set_view = Ti.UI.createView({
+        backgroundColor: 'blue',
+        opacity: 0.8,
+        bottom: 0,
+        height: 144,
+        top: 400 + "dp"
+    });
+    var tag_set = Titanium.UI.createScrollView({
+            top: 10 + "dp",
+            left : 0 + "dp",
+            contentHeight : 100 + "dp",
+            height : 100 + "dp",
+            width : "100%",
+            contentWidth : (100 * tags.length) + "dp",
+            scrollType : "horizontal",
+            backgroundColor : "black",
+    });
+    Ti.API.info("start create tags 2");
+    for (var i = 0; i < tags.length; i++) {
+        var v = Ti.UI.createView({
+            backgroundColor: "#ffffff",
+            borderWidth: 1,
+            top: "0dp",
+            height: "100dp",
+            bubbleParent: false,
+            ext: {
+                tag: tags[i]
+            }
+        });
+        v.left  = i * 100 + "dp";
+        v.width = 100 + "dp";
+        var label = Ti.UI.createLabel({
+            color: "#000",
+            font: {
+                fontSize: "14dp"
+            },
+            width: '90dp',
+            textAlign: 'center',
+            height: '90dp',
+            backgroundColor: "#ddd",
+        });
+        label.text = tags[i];
+        label.name = tags[i];
+
+        v.addEventListener('click', function(e){
+            save_tag_info(image_id, this.ext.tag);
+            set_tag_mini_icon(image_id, imageListBigImageView);
+        });
+        v.add(label);
+        tag_set.add(v);
+    }
+    Ti.API.info("add tag_set");
+    tag_set_view.add(tag_set);
+
+    Ti.API.info("hide");
+    //tag_set_view.hide();
+    Ti.API.info("hide end");
+    return tag_set_view;
 }
 
 $.index.open();
