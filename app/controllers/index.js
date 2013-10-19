@@ -677,8 +677,9 @@ function open_import_list() {
         layout: 'horizontal',
         scrollType: 'vertical',
         cancelBubble: true,
-        top: 50 + 'dp',
+        top: 40 + 'dp',
         bottom: 100 + 'dp',
+        backgroundColor: '#FFEBCD',
     });
     
     var one_time_load_num = 40;
@@ -770,20 +771,20 @@ function open_import_list() {
     	}
     });
     
-    var save_images_btn = Titanium.UI.createButton({title: 'save', height: 40, width: 100});
+    var save_images_btn = Titanium.UI.createButton({title: 'save', height: 30, width: 60, right: 20});
     save_images_btn.addEventListener('click', function() {
         save_images();
         alert('save images completed');
     });
-    var tool_bar = Ti.UI.iOS.createToolbar({
-        items: [save_images_btn],
-        top: 0,
-        height: 50 + 'dp',
-        borderTop: false,
-        borderButtom: true,
-        barColor: '#999'
+
+ 	var top_view = Ti.UI.createView({
+        width: Ti.Platform.displayCaps.platformWidth,
+        height: '40',
+        top: '0',
+		backgroundColor: '#FFEBCD',
     });
-    $.import_list.add(tool_bar);
+    top_view.add(save_images_btn);
+    $.import_list.add(top_view);
     $.import_list.add(view);
 }
 
