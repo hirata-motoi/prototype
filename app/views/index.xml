@@ -12,16 +12,12 @@
 		</View>
 		<View id="image_list">
 		</View>
-        <View id="import_container">
-		</View>
-		<View id="photo">
-			<Label id="label" onClick="doClick4">show photo</Label>
+        <View id="import_list">
 		</View>
 		<View id="button_view">
 			<Button id="button1" onClick="changeView1"></Button>			
 			<Button id="button2" onClick="changeView2"></Button>
 			<Button id="button3" onClick="changeView3"></Button>
-			<Button id="button4" onClick="changeView4"></Button>
 		</View>
 	</Window>
 </Alloy>

@@ -5,63 +5,56 @@ var animation = require('alloy/animation');
 
 function changeView1() {
     remove_open_list();
-	changeView(1);
+	changeView('tag_list');
 	open_tag_list();
 }
 function changeView2() {
-	changeView(2);
+	changeView('camera');
 	open_normal_camera();
 //	open_camera_view();
 }
 function changeView3() {
-	changeView(3);
-	open_image_list();
-}
-function changeView4() {
-	changeView(4);
-    open_import_list();
+	changeView('import_list');
+	open_import_list();
 }
 
-function changeView(num) {
-	var winNum = new Array(5);
-	var buttonSize = new Array(5);
-	for (var i = 1; i < 5; i++) {
-		if(i == num) {
-			winNum[i] = "true";
-			buttonSize[i] = "90";
+function changeView(type) {
+	var types = ['tag_list', 'camera', 'import_list'];
+    var winInfo = new Array();
+	for (var i = 0; i < types.length; i++) {
+        var t = types[i];
+		if(t == type) {
+            winInfo[t] = {
+                visible: true,
+                buttonSize: 90,
+            };
 		} else {
-			winNum[i] = "flase";
-			buttonSize[i] = "70";
+            winInfo[t] = {
+                visible: false,
+                buttonSize: 70,
+            };
 		}
 	}
-	$.tag_list.visible=winNum[1];
-	$.camera.visible=winNum[2];
-	$.image_list.visible=winNum[3];
-	$.import_container.visible=winNum[4];
-	$.photo.visible=winNum[5];
+	$.tag_list.visible    = winInfo['tag_list']['visible'];
+	$.camera.visible      = winInfo['camera']['visible'];
+	$.import_list.visible = winInfo['import_list']['visible'];
 
-	$.button1.height = buttonSize[1];
-	$.button1.width = buttonSize[1];
-	$.button2.height = buttonSize[2];
-	$.button2.width = buttonSize[2];
-	$.button3.height = buttonSize[3];
-	$.button3.width = buttonSize[3];
-	$.button4.height = buttonSize[4];
-	$.button4.width = buttonSize[4];
+	$.button1.height = $.button1.width = winInfo['tag_list']['buttonSize'];;
+	$.button2.height = $.button2.width = winInfo['camera']['buttonSize'];;
+	$.button3.height = $.button3.width = winInfo['import_list']['buttonSize'];;
 
 	adjustSpace();
 }
 
 function adjustSpace() {
 	var viewWidth = Titanium.Platform.displayCaps.platformWidth;
-	var centerPoint = new Array(5);
+	var centerPoint = new Array();
 	for(var i = 1; i < 9; i++) {
-		centerPoint[i] = viewWidth*i/8;
+		centerPoint[i] = viewWidth * i / 8;
 	}
 	$.button1.left = centerPoint[1] - $.button1.width/2;
-	$.button2.left = centerPoint[3] - $.button2.width/2;
-	$.button3.left = centerPoint[5] - $.button3.width/2;
-	$.button4.left = centerPoint[7] - $.button4.width/2;
+	$.button2.left = centerPoint[4] - $.button2.width/2;
+	$.button3.left = centerPoint[7] - $.button3.width/2;
 }
 
 changeView1();
@@ -274,42 +267,6 @@ function doClick3() {
     });
 }
 
-function doClick4() {
-    var id;
-    var rows = Alloy.createCollection('seq_image');
-    rows.fetch();
-    rows.map(function(row) {
-        id = row.get('id');
-    });
-
-    read_image_info();
-
-    var file = Ti.Filesystem.getFile(Titanium.Filesystem.applicationDataDirectory + "/" + id + '.png');
-    var win = Ti.UI.createWindow({
-        backgroundColor: 'black'
-    });
-    var cancel_btn = Titanium.UI.createButton({title: 'close', height: 40, width: 100});
-    cancel_btn.addEventListener('click', function() {
-        win.close();
-    });
-    win.rightNavButton = cancel_btn;
-
-    var view = Ti.UI.createView();
-
-    var image = Ti.UI.createImageView({
-        image: file,
-        width: 200,
-    });
-
-    view.add(image);
-    win.add(view);
-    win.open({
-        modal:true,
-        modalTransitionStyle: Titanium.UI.iPhone.MODAL_TRANSITION_STYLEFLIP_HORIZONTAL,
-        modalStyle: Titanium.UI.iPhone.MODAL_PRESENTATION_FORMSHEET
-    });
-}
-
 function doClick5() {
     var data  = [];
     var image_ids = get_image_path_list();
@@ -388,16 +345,33 @@ function doClick5() {
     });
 }
 
-function create_image_list() {
-    var data  = [];
-    var image_ids = get_image_path_list();
+function create_image_list(e) {
 
+    var tag = e.source.ext.tag;
+    Ti.API.info('create_image_list tag:' + tag);
+    var data  = [];
+    var image_ids;
+    
+    if (tag !== 'no tag') {
+        var all_tag_groups = get_tag_groups();
+        image_ids = new Array();
+        for ( var t in all_tag_groups ) {
+            for ( var im = 0; im < all_tag_groups[t].length; im++ ) {
+                image_ids.push(all_tag_groups[t][im]);
+            }
+        }
+    } else {
+        image_ids = (get_tag_groups(tag))[tag];
+    }
+
+    // constants
     var perRow = 4;
     var cellWidth = Titanium.Platform.displayCaps.platformWidth / perRow;
     var cellHeight = cellWidth;
 
     var scrollView = Ti.UI.createScrollView({
         contentWidth: Ti.Platform.displayCaps.platformWidth,
+        top: 50,
         contentHeight: 'auto',
         layout: 'horizontal',
         scrollType: 'vertical',
@@ -418,154 +392,45 @@ function create_image_list() {
             }
         });
 
-        image.addEventListener('click', function(e){
-            var image_id = e.source.ext.id;
-
-            var image_win = Ti.UI.createWindow({
-                backgroundColor: 'white'
-            });
-            var image_win_cancel_btn = Titanium.UI.createButton({title: 'close', height: 40, width: 100});
-            image_win_cancel_btn.addEventListener('click', function() {
-                image_win.close();
-            });
-            var image_view = Ti.UI.createView();
-            var inner_view = Ti.UI.createView();
-            var focused_image = Ti.UI.createImageView({
-                image: e.source.ext.image, 
-                top: 0,
-                right: 0,
-                width: "100%",
-                ext: {
-                    id: image_id
-                },
-                layout: 'absolute'
-            });
-
-            var tags = ['smile', 'sleep', 'angry', 'laugh', 'eat', 'cry'];
-            var tag_set_view = Ti.UI.createView({
-                backgroundColor: 'blue',
-                opacity: 0.8,
-                bottom: 0,
-                height: 144
-            });
-            var tag_set = Titanium.UI.createScrollView({
-                    top: 10 + "dp",
-                    left : 0 + "dp",
-                    contentHeight : 100 + "dp",
-                    height : 100 + "dp",
-                    width : "100%",
-                    contentWidth : (100 * tags.length) + "dp",
-                    scrollType : "horizontal",
-                    backgroundColor : "black",
-            });
-            for (var i = 0; i < tags.length; i++) {
-                var v = Ti.UI.createView({
-                    backgroundColor: "#ffffff",
-                    borderWidth: 1,
-                    top: "0dp",
-                    height: "100dp",
-                    ext: {
-                        tag: tags[i]
-                    }
-                });
-                v.left  = i * 100 + "dp";
-                v.width = 100 + "dp";
-                var label = Ti.UI.createLabel({
-                    color: "#000",
-                    font: {
-                        fontSize: "14dp"
-                    },
-                    width: '90dp',
-                    textAlign: 'center',
-                    height: '90dp',
-                    backgroundColor: "#ddd",
-                    bubbleParent: true,
-                });
-                label.text = tags[i];
-                label.name = tags[i];
-
-                v.addEventListener('click', function(){
-                    Ti.API.info(this.ext);
-                    save_tag_info(image_id, this.ext.tag);
-                    set_tag_mini_icon(image_id, inner_view);
-                });
-                v.add(label);
-                tag_set.add(v);
-            }
-            tag_set_view.add(tag_set);
-
-            tag_set_view.hide();
-            focused_image.addEventListener('click', function(e){
-                if (tag_set_view.visible) {
-                    tag_set_view.hide();
-                } else {
-                    tag_set_view.show();
-                }
-//                var dialog = Ti.UI.createAlertDialog({
-//                    title: "select tag",
-//                    message: "please choose a tag",
-//                    buttonNames: ['mariko','kojiharu', 'hoge', 'cancel'],
-//                    cancel: 3,
-//                    ext: {
-//                        id: e.source.ext.id
-//                    }
-//                });
-//                dialog.addEventListener('click', function(e) {
-//                    Ti.API.info(e.index);
-//                    var id = e.source.ext.id;
-//                    var tag;
-//                    if (e.index == 0) {
-//                        tag = 'mariko';
-//                        save_tag_info(id, tag);
-//                    }
-//                    if (e.index == 1) {
-//                        tag = 'kojiharu';
-//                        save_tag_info(id, tag);
-//                    }
-//                    if (e.index == 2) {
-//                        tag = 'hoge';
-//                        save_tag_info(id, tag);
-//                    }
-//                    if (e.cancel) {
-//                        Ti.API.info("canceled");
-//                        return;
-//                    }
-//                });
-//                dialog.show();
-            });
-
-            inner_view.add(focused_image);
-            set_tag_mini_icon(image_id, inner_view);
-            image_view.add(inner_view);
-            image_win.add(image_view);
-            image_win.add(tag_set_view);
-            
-            // tool bar
-            var flexSpace = Ti.UI.createButton({
-                systemButton: Ti.UI.iPhone.SystemButton.FLEXIBLE_SPACE
-            });
-            var buttonBack = Ti.UI.createButton({
-                title: String.fromCharCode(0x25c0)
-            });
-            var buttonForward = Ti.UI.createButton({
-                title: String.fromCharCode(0x25b6)
-            });
-            image_win.setToolbar([flexSpace, buttonBack, flexSpace, buttonForward, flexSpace]);
-
-            image_win.rightNavButton = image_win_cancel_btn;
-            image_win.open({
-                modal:true,
-                modalTransitionStyle: Titanium.UI.iPhone.MODAL_TRANSITION_STYLEFLIP_HORIZONTAL,
-                modalStyle: Titanium.UI.iPhone.MODAL_PRESENTATION_FORMSHEET
-            });
-        });
+        image.addEventListener('click', show_zoom_image);
         scrollView.add(image);
     }
 
-//    var win = Ti.UI.createWindow({
-//        backgroundColor: 'black'
+    // parent view
+    var parentView = Ti.UI.createView({
+        backgroundColor: 'black'
+    });
+    parentView.add(scrollView);
+
+    var cancel_btn = Titanium.UI.createButton({
+        title: 'close',
+        height: 40,
+        width: 100,
+        top: 0,
+        right: 0,
+        ext: {
+            close_target: parentView
+        }
+    });
+    cancel_btn.addEventListener('click', function(e) {
+        var close_target = e.source.ext.close_target;
+		animation.fadeOut(close_target, 500);
+    });
+    parentView.add(cancel_btn);
+//    var flexSpace = Titanium.UI.createButton({
+//        systemButton:Titanium.UI.iPhone.SystemButton.FLEXIBLE_SPACE
 //    });
-    $.image_list.add(scrollView);
+//    var tool_bar = Ti.UI.iOS.createToolbar({
+//        items: [flexSpace, flexSpace, flexSpace, cancel_btn],
+//        top: 0,
+//        height: 50 + 'dp',
+//        borderTop: false,
+//        borderButtom: true,
+//        barColor: '#999'
+//    });
+
+
+    $.index.add(parentView);
 }
 
 function get_tag_groups(tag) {
@@ -701,7 +566,7 @@ function open_tag_list() {
 		scrollType      : "vertical",
 //		backgroundColor : "red",
 	});
-	
+
     var tag_count = 0;
 	for (var tag_name in tags) {
 		// Tag View
@@ -721,8 +586,12 @@ function open_tag_list() {
 			width : "100%",
 			textAlign : "center",
 			height : "50dp",
-			backgroundColor : "#ddd"
+			backgroundColor : "#ddd",
+            ext: {
+                tag: tag_name,
+            }
 		});
+        guestTagLabel.addEventListener('click', create_image_list);
 		guestTagView.add(guestTagLabel);
 		// Images View
 		var guestScrollView = Titanium.UI.createScrollView({
@@ -755,24 +624,6 @@ function open_tag_list() {
 			});
 			imageListView.add(imageListImageView);
             imageListImageView.addEventListener('click', show_zoom_image);
-//			imageListImageView.addEventListener('click', function(){
-//				var imageListBigImageBackView = Ti.UI.createView({
-//					backgroundImage: "/tag_table_back.png",
-//					width:"100%",
-//					height:"100%",
-//				});
-//				var imageListBigImageView = Ti.UI.createImageView({
-//					image: this.image,
-//					width: "90%",
-//					height: "90%",
-//				});
-//				imageListBigImageBackView.add(imageListBigImageView);
-//				imageListBigImageBackView.addEventListener('click', function(){
-//					animation.fadeOut(this, 500);
-////					$.tag_list.remove(this);
-//				});
-//				$.tag_list.add(imageListBigImageBackView);
-//			});
 			guestScrollView.add(imageListView);
 		}
 		hostScrollView.add(guestTagView);
@@ -808,29 +659,16 @@ function show_zoom_image(e) {
 
 	imageListBigImageBackView.addEventListener('click', function(){
 		animation.fadeOut(this, 500);
-//		$.tag_list.remove(this);
+		//$.tag_list.remove(this);
 	});
-    Ti.API.info("add view to window");
 	$.index.add(imageListBigImageBackView);
-    Ti.API.info("add view to window end");
-}
-
-function open_image_list() {
-    var children = $.image_list.children.slice(0);
-    if (children) {
-        for (var i = 0; i < children.length; i++) {
-            Ti.API.info("remove children");
-            $.image_list.remove(children[i]);
-        }
-    }
-    create_image_list();
 }
 
 function open_import_list() {
 
-    var previous_views = $.import_container.children.slice(0);
+    var previous_views = $.import_list.children.slice(0);
     for (var i = 0; i < previous_views.length; i++) {
-        $.import_container.remove(previous_views[i]);
+        $.import_list.remove(previous_views[i]);
     }
     
     var view = Ti.UI.createScrollView({
@@ -942,12 +780,12 @@ function open_import_list() {
         borderButtom: true,
         barColor: '#999'
     });
-    $.import_container.add(tool_bar);
-    $.import_container.add(view);
+    $.import_list.add(tool_bar);
+    $.import_list.add(view);
 }
 
 function save_images() {
-    var view = $.import_container.children.slice(0)[1];
+    var view = $.import_list.children.slice(0)[1];
     var images = view.children.slice(0);
 
     Ti.API.info("images.length: " + images.length);
@@ -1064,47 +902,47 @@ function set_tag_mini_icon(image_id, inner_view) {
 
 function open_normal_camera() {
 	Titanium.Media.showCamera({
-    success:function(event) {
-        // called when media returned from the camera
-        Ti.API.debug('Our type was: '+event.mediaType);
-        if(event.mediaType == Ti.Media.MEDIA_TYPE_PHOTO) {
-            var imageView = Ti.UI.createImageView({
-                width:$.camera.width,
-                height:$.camera.height,
-                image:event.media
-            });
-            // save image
-            var id = get_image_seq();
-            var file = Ti.Filesystem.getFile(
-            	Titanium.Filesystem.applicationDataDirectory + "/" + id + '.png'
-        	);
-        	if (!file.exists()) { file.createFile(); }
-        	file.write(imageView.image);
-        	save_image_info(id);
-            
-            // after view
-            changeView3();
-        } else {
-            alert("got the wrong type back ="+event.mediaType);
-        }
-    },
-    cancel:function() {
-        // called when user cancels taking a picture
-    },
-    error:function(error) {
-        // called when there's an error
-        var a = Titanium.UI.createAlertDialog({title:'Camera'});
-        if (error.code == Titanium.Media.NO_CAMERA) {
-            a.setMessage('Please run this test on device');
-        } else {
-            a.setMessage('Unexpected error: ' + error.code);
-        }
-        a.show();
-    },
-    saveToPhotoGallery:true,
-    allowEditing:false,
-    mediaTypes:[Ti.Media.MEDIA_TYPE_PHOTO]
-});
+        success:function(event) {
+            // called when media returned from the camera
+            Ti.API.debug('Our type was: '+event.mediaType);
+            if (event.mediaType == Ti.Media.MEDIA_TYPE_PHOTO) {
+                var imageView = Ti.UI.createImageView({
+                    width:$.camera.width,
+                    height:$.camera.height,
+                    image:event.media
+                });
+                // save image
+                var id = get_image_seq();
+                var file = Ti.Filesystem.getFile(
+                	Titanium.Filesystem.applicationDataDirectory + "/" + id + '.png'
+            	);
+            	if (!file.exists()) { file.createFile(); }
+            	file.write(imageView.image);
+            	save_image_info(id);
+                
+                // after view
+                changeView3();
+            } else {
+                alert("got the wrong type back ="+event.mediaType);
+            }
+        },
+        cancel:function() {
+            // called when user cancels taking a picture
+        },
+        error:function(error) {
+            // called when there's an error
+            var a = Titanium.UI.createAlertDialog({title:'Camera'});
+            if (error.code == Titanium.Media.NO_CAMERA) {
+                a.setMessage('Please run this test on device');
+            } else {
+                a.setMessage('Unexpected error: ' + error.code);
+            }
+            a.show();
+        },
+        saveToPhotoGallery: true,
+        allowEditing: false,
+        mediaTypes: [Ti.Media.MEDIA_TYPE_PHOTO]
+    });
 }
 
 function open_camera_view() {
@@ -1130,7 +968,6 @@ function get_images_without_tag() {
     var all_images = get_image_path_list();
     var all_image_hash = {};
     for (var i = 0; i < all_images.length; i++) {
-        Ti.API.info("all_images image_id: " + all_images[i]);
         all_image_hash[ all_images[i] ] = 1;
     }
 
