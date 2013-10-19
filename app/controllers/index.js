@@ -819,13 +819,18 @@ function open_import_list() {
         cancelBubble: true,
         top: 50 + 'dp'
     });
+    
+    var one_time_load_num = 32;
+    var current_loaded_page = 0;
+    var image;
+    
     var assetslibrary = require('ti.assetslibrary');
     var g = [assetslibrary.AssetsGroupTypeAll];
     assetslibrary.getGroups(g, function(e) {
         var list = e.groups;
         for (var i = 0; i < list.length; i++) {
             var ao = list[i];
-            Ti.API.info(ao.name);
+            Ti.API.info("name : " + ao.name);
             ao.getAssets(function(e) {
                 var al = e.assets;
                 var length = al.assetsCount;
@@ -833,6 +838,7 @@ function open_import_list() {
                     return;
                 }
                 Ti.API.info("length : " + length);
+                image = new Array(length);
                 for (var i = 0; i < length; i++) {
                     var o = al.getAssetAtIndex(i);
 
@@ -840,7 +846,7 @@ function open_import_list() {
                     var cellWidth = Titanium.Platform.displayCaps.platformWidth / perRow;
                     var cellHeight = cellWidth;
 
-                    var image = Titanium.UI.createImageView({
+                    image[i] = Titanium.UI.createImageView({
                         image: o.thumbnail,
                         width: cellWidth,
                         height: cellHeight,
@@ -853,7 +859,7 @@ function open_import_list() {
                     });
                     Ti.API.info(o.defaultRepresentation.filename);
 
-                    image.addEventListener('click', function(e) {
+                    image[i].addEventListener('click', function(e) {
                         t = this;
                         t.hasCheck = !(t.hasCheck);
                         Ti.API.info(t.hasCheck);
@@ -878,11 +884,27 @@ function open_import_list() {
                             }
                         }
                     });
-                    view.add(image);
                 }
+                var load_length = (image.length < one_time_load_num) ? image.length : one_time_load_num;
+                for(var i = 0; i < load_length; i++) {
+    				console.log(i);
+    				view.add(image[i]);
+    			}
+    			current_loaded_page = load_length;
             });
         }
     }, function(e) {
+    });
+    
+    view.addEventListener('scrollEnd', function(){
+    	console.log("scrollend");
+    	var load_start_length = current_loaded_page;
+    	var load_end_length = ((current_loaded_page + one_time_load_num) > image.length) ? image.length : (current_loaded_page + one_time_load_num);
+        for(var i = load_start_length; i < load_end_length; i++) {
+    		console.log(i);
+    		view.add(image[i]);
+    	}
+    	current_loaded_page = load_end_length;
     });
 
     var save_images_btn = Titanium.UI.createButton({title: 'save', height: 40, width: 100});
