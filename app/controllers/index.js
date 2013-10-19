@@ -839,12 +839,14 @@ function open_import_list() {
         layout: 'horizontal',
         scrollType: 'vertical',
         cancelBubble: true,
-        top: 50 + 'dp'
+        top: 50 + 'dp',
+        bottom: 100 + 'dp',
     });
     
-    var one_time_load_num = 32;
+    var one_time_load_num = 40;
     var current_loaded_page = 0;
     var image;
+    var perRow = 4;
     
     var assetslibrary = require('ti.assetslibrary');
     var g = [assetslibrary.AssetsGroupTypeAll];
@@ -864,7 +866,6 @@ function open_import_list() {
                 for (var i = 0; i < length; i++) {
                     var o = al.getAssetAtIndex(i);
 
-                    var perRow = 4;
                     var cellWidth = Titanium.Platform.displayCaps.platformWidth / perRow;
                     var cellHeight = cellWidth;
 
@@ -919,16 +920,18 @@ function open_import_list() {
     });
     
     view.addEventListener('scrollEnd', function(){
-    	console.log("scrollend");
-    	var load_start_length = current_loaded_page;
-    	var load_end_length = ((current_loaded_page + one_time_load_num) > image.length) ? image.length : (current_loaded_page + one_time_load_num);
-        for(var i = load_start_length; i < load_end_length; i++) {
-    		console.log(i);
-    		view.add(image[i]);
+    	//TODO magic number 6
+    	if (this.contentOffset.y > (current_loaded_page/perRow - 6) * image[0].height) {
+     		var load_start_length = current_loaded_page;
+    		var load_end_length = ((current_loaded_page + one_time_load_num) > image.length) ? image.length : (current_loaded_page + one_time_load_num);
+        	for(var i = load_start_length; i < load_end_length; i++) {
+    			console.log(i);
+    			view.add(image[i]);
+    		}
+    		current_loaded_page = load_end_length;
     	}
-    	current_loaded_page = load_end_length;
     });
-
+    
     var save_images_btn = Titanium.UI.createButton({title: 'save', height: 40, width: 100});
     save_images_btn.addEventListener('click', function() {
         save_images();
