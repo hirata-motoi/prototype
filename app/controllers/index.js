@@ -102,7 +102,6 @@ function save_tag_info(id, tag) {
             'updated_at': String(new Date().getTime())
         });
         tag_i.save();
-        alert('save tag info succeeded id:' + id + "  tag:" + tag);
     }
     // delete tag into
     else {
@@ -110,11 +109,11 @@ function save_tag_info(id, tag) {
             var ii = row.get('id');
             var it = row.get('tag');
             var ic = row.get('created_at');
+            var ic = row.get('updated_at');
             var idis = row.get('disabled');
 
-            row.set({'disabled':1});
-            row.save();
-        })
+			row.destroy();
+        });
     }
 }
 
