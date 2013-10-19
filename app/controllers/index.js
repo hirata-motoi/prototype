@@ -92,15 +92,37 @@ $.close_tag.addEventListener('click', fadeOutTagView);
 // About Controler
 function save_tag_info(id, tag) {
     Ti.API.info("id:" + id + "  tag:" + tag);
-    var tag_w = Alloy.createModel('image_tag', {
-        'id': id,
-        'tag': tag,
-        'disabled': 0,
-        'created_at': String(new Date().getTime()),
-        'updated_at': String(new Date().getTime())
-    });
-    tag_w.save();
-    alert('save tag info succeeded id:' + id + "  tag:" + tag);
+
+    var tag_u = Alloy.createCollection('image_tag'); 
+    tag_u.fetch({query: 'select * from image_tag where id = ' + id + ' and tag = "' + tag + '"'});
+//    Ti.API.info( "tag_u.length : " + tag_u.models.length );
+//    Ti.API.info( "tag_u.model : " + tag_u.models[0] );
+//    tag_u.models[0].destroy();
+//    tag_u.models[1].destroy();
+//    Ti.API.info( "tag_u.length after : " + tag_u.length );
+    if ( tag_u.length == 0 ) {
+        var tag_i = Alloy.createModel('image_tag', {
+            'id': id,
+            'tag': tag,
+            'disabled': 0,
+            'created_at': String(new Date().getTime()),
+            'updated_at': String(new Date().getTime())
+        });
+        tag_i.save();
+        alert('save tag info succeeded id:' + id + "  tag:" + tag);
+    }
+    // delete tag into
+    else {
+        tag_u.map(function(row){
+            var ii = row.get('id');
+            var it = row.get('tag');
+            var ic = row.get('created_at');
+            var idis = row.get('disabled');
+
+            row.set({'disabled':1});
+            row.save();
+        })
+    }
 }
 
 
@@ -381,7 +403,6 @@ function create_image_list() {
         scrollType: 'vertical',
         cancelBubble: true
     });
-    Ti.API.info("image_ids.length : " + image_ids.length);
 
     var row;
     for ( var i = 0, max = image_ids.length; i < max; i++ ) {
@@ -556,6 +577,7 @@ function get_tag_groups(tag) {
     else {
         tag_r.fetch({query: 'select * from image_tag where tag is not null and id is not null and disabled = 0'});
     }
+Ti.API.info( "tag_r.length : " + tag_r.length );
 
     var tags = new Array();
     tag_r.map(function(image) {
@@ -988,6 +1010,8 @@ function get_tag_info_by_ids(ids) {
     tag_r.map(function(row) {
         var image_id = row.get('id');
         var tag = row.get('tag');
+        var disabled = row.get('disabled');
+        Ti.API.info('id:' + image_id + ' tag:' + tag + ' disabled:' + disabled);
         
         if ( ! tag_info[image_id] ) {
             tag_info[image_id] = new Array();
@@ -1000,9 +1024,15 @@ function get_tag_info_by_ids(ids) {
 }
 
 function set_tag_mini_icon(image_id, inner_view) {
+    var children = inner_view.children.slice(0);
+    if (children) {
+        for (var c = 0; c < children.length; c++) {
+            inner_view.remove(children[c]);
+        }
+    }
+
     var tag_info = get_tag_info_by_ids([image_id]);
     if (!tag_info || !tag_info[image_id]) { return; }
-    Ti.API.info("tag_info.length:" + tag_info[image_id].length);
     var tag_view = Ti.UI.createView({
         backgroundColor: 'white',
         top: 0,
