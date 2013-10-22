@@ -757,7 +757,7 @@ function open_import_list() {
     }, function(e) {
     });
     
-    view.addEventListener('scrollEnd', function(){
+    view.addEventListener('scrollend', function(){
     	//TODO magic number 6
     	if (this.contentOffset.y > (current_loaded_page/perRow - 6) * image[0].height) {
      		var load_start_length = current_loaded_page;
