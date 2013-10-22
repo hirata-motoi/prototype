@@ -634,33 +634,99 @@ function open_tag_list() {
 	$.tag_list.add(hostScrollView);
 };
 
+// TODO 画像の縦横比を計算して最大表示されるようにする
 function show_zoom_image(e) {
     var image_id = e.source.ext.id;
 
 	var imageListBigImageBackView = Ti.UI.createView({
-		backgroundImage: "/tag_table_back.png",
+		//backgroundImage: "/tag_table_back.png",
+        backgroundColor: 'black',
 		width:"100%",
 		height:"100%",
 	});
 	var imageListBigImageView = Ti.UI.createImageView({
 		image: this.image,
-		width: "80%",
-		height: "80%",
-        top: 0,
+		width: "100%",
+        ext: {
+            type: 'bigImageView'
+        }
 	});
 	imageListBigImageBackView.add(imageListBigImageView);
-    var tag_set = create_tag_set(e, imageListBigImageView);
+    var tag_set  = create_tag_set(e, imageListBigImageView);
+    var tool_bar = create_toolbar(e, imageListBigImageBackView);
 
     set_tag_mini_icon(image_id, imageListBigImageView);
 
 	imageListBigImageBackView.add(tag_set);
+    imageListBigImageBackView.add(tool_bar);
     Ti.API.info("set tag_set end");
 
-	imageListBigImageBackView.addEventListener('click', function(){
-		animation.fadeOut(this, 500);
+	imageListBigImageBackView.addEventListener('click', function(e){
+		//animation.fadeOut(this, 500);
 		//$.tag_list.remove(this);
+        var target = this;
+        show_tools_on_image(target);
 	});
 	$.index.add(imageListBigImageBackView);
+}
+
+function show_tools_on_image(target) {
+    Ti.API.info('show_tools_on_image');
+    var children = target.children.slice(0);
+    if (children) {
+        Ti.API.info('children.length:' + children.length);
+        for (var i = 0; i < children.length; i++) {
+	        if (children[i].ext && children[i].ext.type && children[i].ext.type == 'bigImageView') {
+                Ti.API.info("bigImageView start");
+	            var children2 = children[i].children.slice(0);
+                Ti.API.info("children2.length:" + children2.length);
+	            if (children2) {
+	                for (var h = 0; h < children2.length; h++) {
+	                    children2[h].hidden = ! children2[h].hidden;
+			            if ( children2[i].hidden ) {
+			                children2[i].hide();
+			            } else {
+			                children2[i].show();
+			            }
+			        }
+			    }
+	            continue;
+			}
+
+            children[i].hidden = ! children[i].hidden;
+            if ( children[i].hidden ) {
+                children[i].hide();
+            } else {
+                children[i].show();
+            }
+        }
+    }
+}
+
+function create_toolbar(e, imageListBigImageBackView) {
+    var cancel_btn = Titanium.UI.createButton({
+        title: 'close',
+        height: 40,
+        width: 100,
+        top: 5,
+        right: 5,
+        ext: {
+            close_target: imageListBigImageBackView
+        }
+    });
+    cancel_btn.addEventListener('click', function(e) {
+        var close_target = e.source.ext.close_target;
+		animation.fadeOut(close_target, 500);
+    });
+
+    var tool_bar = Ti.UI.createView({
+        backgroundImage: '/tag_table_back.png',
+        top: 0,
+        width: '100%',
+        height: 50,
+    });
+    tool_bar.add(cancel_btn);
+    return tool_bar;
 }
 
 function open_import_list() {
@@ -993,42 +1059,21 @@ function get_images_without_tag() {
 }
 
 function create_tag_set(e, imageListBigImageView) {
-    Ti.API.info(e);
     var image_id = e.source.ext.id;
-
-//    var image_win = Ti.UI.createWindow({
-//        backgroundColor: 'white'
-//    });
-//    var image_win_cancel_btn = Titanium.UI.createButton({title: 'close', height: 40, width: 100});
-//    image_win_cancel_btn.addEventListener('click', function() {
-//        image_win.close();
-//    });
-//    var image_view = Ti.UI.createView();
-//    var inner_view = Ti.UI.createView();
-//    var focused_image = Ti.UI.createImageView({
-//        image: e.source.ext.image, 
-//        top: 0,
-//        right: 0,
-//        width: "100%",
-//        ext: {
-//            id: image_id
-//        },
-//        layout: 'absolute'
-//    });
 
     var tags = ['smile', 'sleep', 'angry', 'laugh', 'eat', 'cry'];
     var tag_set_view = Ti.UI.createView({
-        backgroundColor: 'blue',
+        backgroundImage: '/tag_table_back.png',
         opacity: 0.8,
         bottom: 0,
-        height: 144,
-        top: 400 + "dp"
+        height: 100,
+        top: 380 + "dp"
     });
     var tag_set = Titanium.UI.createScrollView({
             top: 10 + "dp",
             left : 0 + "dp",
-            contentHeight : 100 + "dp",
-            height : 100 + "dp",
+            contentHeight : 70 + "dp",
+            height : 70 + "dp",
             width : "100%",
             contentWidth : (100 * tags.length) + "dp",
             scrollType : "horizontal",
@@ -1040,7 +1085,7 @@ function create_tag_set(e, imageListBigImageView) {
             backgroundColor: "#ffffff",
             borderWidth: 1,
             top: "0dp",
-            height: "100dp",
+            height: "70dp",
             bubbleParent: false,
             ext: {
                 tag: tags[i]
@@ -1055,7 +1100,7 @@ function create_tag_set(e, imageListBigImageView) {
             },
             width: '90dp',
             textAlign: 'center',
-            height: '90dp',
+            height: '70dp',
             backgroundColor: "#ddd",
         });
         label.text = tags[i];
