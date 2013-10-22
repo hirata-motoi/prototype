@@ -579,7 +579,9 @@ function open_tag_list() {
 		var guestTagLabel = Ti.UI.createLabel({
 			color : "#000",
 			font : {
-				fontSize : "14dp"
+				fontSize : "25dp",
+				fontWeight: "bold",
+				fontFamily: 'Trebuchet-BoldItalic',
 			},
 			text: tag_name,
 			width : "100%",
@@ -607,7 +609,7 @@ function open_tag_list() {
 		for(var j = 0; j < tags[tag_name].length; j++) {
 			var imageListView = Ti.UI.createView({
 				backgroundColor : "#ffffff",
-				borderWidth : 10,
+				borderWidth : 0,
 				top : "0dp",
 				height : "100dp"
 			});
